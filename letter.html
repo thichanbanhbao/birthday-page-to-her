@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <title>Thư chúc sinh nhật bbi iu</title>
+  <!-- Thêm Google Font Dancing Script -->
+  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script&display=swap" rel="stylesheet" />
+  <style>  
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(45deg, #ff99cc, #ff66b2, #ffb3d9, #ffe6f0);
+      background-size: 400%;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+      animation: ChuyenMauBG 12s ease infinite;
+      position: relative;
+    }
+
+    @keyframes ChuyenMauBG {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .envelope-container {
+      position: relative;
+      z-index: 10;
+    }
+
+    .envelope {
+      position: relative;
+      width: 500px;
+      height: 300px;
+      background: #fff;
+      border: 2px solid #ccc;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+      cursor: pointer;
+    }
+
+    .flap {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border-left: 150px solid transparent;
+      border-right: 150px solid transparent;
+      border-top: 100px solid #f2b5d4;
+      transform-origin: top center;
+      transition: transform 1s ease;
+      z-index: 2;
+    }
+
+    .envelope.open .flap {
+      transform: rotateX(180deg);
+    }
+
+    .letter {
+      position: absolute;
+      top: 0;
+      left: 0;
+      padding: 20px;
+      width: 100%;
+      height: 100%;
+      font-size: 18px;
+      color: #333;
+      opacity: 0;
+      transition: opacity 1s ease-in 1s;
+      white-space: pre-wrap;
+      overflow-y: auto;
+
+      /* Thêm font viết bút máy */
+      font-family: 'Dancing Script', cursive;
+      line-height: 1.5;
+    }
+
+    .envelope.open .letter {
+      opacity: 1;
+    }
+
+    #headline {
+      display: inline-block;
+      font-weight: 700;
+      font-size: 28px;
+      color: #d62828; /* đỏ đậm đẹp hơn */
+      white-space: pre-wrap;
+      position: relative;
+      margin-bottom: 0;
+      margin-top: 0%;
+      font-family: 'Dancing Script', cursive;
+      letter-spacing: 0.03em;
+    }
+
+    #message {
+      font-size: 18px;
+      color: #333;
+      white-space: pre-wrap;
+      font-family: 'Dancing Script', cursive;
+      letter-spacing: 0.02em;
+    }
+
+    @keyframes slideFadeIn {
+      0% {
+        transform: translate(-30px, -20px);
+        opacity: 0;
+      }
+      100% {
+        transform: translate(0, 0);
+        opacity: 1;
+      }
+    }
+
+    @keyframes fadeSlideUp {
+      0% {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .message-char {
+      opacity: 0;
+      display: inline-block;
+      animation: fadeSlideUp 0.3s forwards;
+    }
+
+    .heart-particle {
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      background: transparent;
+      clip-path: path('M10 3.22l-.61-.6C7.4 1.13 4.26 1.77 3 3.84 1.27 6.46 2.07 10.29 5.5 13.56l4.5 4.5 4.5-4.5c3.43-3.27 4.23-7.1 2.5-9.72-1.26-2.07-4.4-2.71-6.39-1.22l-.61.6z');
+      animation: floatHeart 8s infinite linear;
+      opacity: 0.7;
+      z-index: 0;
+    }
+
+    @keyframes floatHeart {
+      0% { transform: translateY(0) rotate(0deg); opacity: 0.7; }
+      50% { opacity: 0.3; }
+      100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; }
+    }
+
+    .sparkle {
+      position: absolute;
+      width: 6px;
+      height: 6px;
+      background: #fff;
+      border-radius: 50%;
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+      animation: sparkle 3s infinite ease-in-out;
+      z-index: 0;
+    }
+
+    @keyframes sparkle {
+      0%, 100% { opacity: 0; transform: scale(0.5); }
+      50% { opacity: 1; transform: scale(1); }
+    }
+  </style>
+</head>
+
+<body>
+  <audio id="bgMusic" src="assets/music/happy-birthday.mp3" autoplay loop></audio>
+  <div class="envelope-container">
+    <div class="envelope" onclick="toggleEnvelope(this)">
+      <div class="flap"></div>
+      <div class="letter" id="letter">
+        <div id="headline"></div>
+        <div id="message"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const headlineText = 'CHÚC EM YÊU SINH NHẬT VUI VẺ';
+    const msg = `Gửi em yêu của anh 💖
+Chúc em một sinh nhật thật hạnh phúc, ngập tràn yêu thương và bất ngờ.
+Anh biết anh không phải là người giỏi thể hiện, nhưng hôm nay anh muốn cho em biết rằng em rất quan trọng với anh.
+Cảm ơn em vì đã luôn bên anh, dịu dàng và ấm áp.
+Anh yêu em rất nhiều! 🥰
+`;
+
+    let hasOpened = false;
+
+    function toggleEnvelope(element) {
+      element.classList.toggle('open');
+      if (!hasOpened && element.classList.contains('open')) {
+        hasOpened = true;
+        openLetter();
+      }
+    }
+
+    // Hiệu ứng gõ từng chữ cho headline với dịch chuyển từ trái sang giữa
+    function typeHeadline(text, element, i = 0, callback = () => {}) {
+      if (i < text.length) {
+        element.innerHTML += text[i] === '\n' ? '<br>' : text[i];
+        const maxLeft = -200;
+        const progress = (i + 1) / text.length;
+        const newLeft = maxLeft + progress * Math.abs(maxLeft);
+        element.style.position = 'relative';
+        element.style.left = `${newLeft}px`;
+        setTimeout(() => typeHeadline(text, element, i + 1, callback), 80);
+      } else {
+        element.style.left = '0px';
+        callback();
+      }
+    }
+
+    // Hiệu ứng gõ từng chữ cho message, mỗi chữ là span có animation fade + slide nhẹ
+    function typeMessage(text, element, i = 0, callback = () => {}) {
+      const chars = Array.from(text);
+      if (i < chars.length) {
+        if (chars[i] === '\n') {
+          element.appendChild(document.createElement('br'));
+          i++;
+          setTimeout(() => typeMessage(text, element, i, callback), 20);
+          return;
+        }
+        const span = document.createElement('span');
+        span.textContent = chars[i];
+        span.className = 'message-char';
+        span.style.animationDelay = `${i * 25}ms`;
+        element.appendChild(span);
+        i++;
+        setTimeout(() => typeMessage(text, element, i, callback), 25);
+      } else {
+        callback();
+      }
+    }
+
+    function openLetter() {
+      const headline = document.getElementById("headline");
+      const message = document.getElementById("message");
+      headline.innerHTML = '';
+      message.innerHTML = '';
+      typeHeadline(headlineText, headline, 0, () => {
+        setTimeout(() => {
+          typeMessage(msg, message, 0);
+           setTimeout(() => window.location.href = "wish.html", 15000);
+        }, 500);
+      });
+    }
+
+    function createBackgroundEffects() {
+      for (let i = 0; i < 30; i++) {
+        const heart = document.createElement("div");
+        heart.classList.add("heart-particle");
+        heart.style.left = `${Math.random() * 100}vw`;
+        heart.style.top = `${Math.random() * 100}vh`;
+        heart.style.animationDelay = `${Math.random() * 5}s`;
+        heart.style.backgroundColor = `hsl(${Math.random() * 20 + 330}, 80%, ${Math.random() * 20 + 60}%)`;
+        document.body.appendChild(heart);
+      }
+      for (let i = 0; i < 20; i++) {
+        const sparkle = document.createElement("div");
+        sparkle.classList.add("sparkle");
+        sparkle.style.left = `${Math.random() * 100}vw`;
+        sparkle.style.top = `${Math.random() * 100}vh`;
+        sparkle.style.animationDelay = `${Math.random() * 3}s`;
+        document.body.appendChild(sparkle);
+      }
+    }
+
+    window.addEventListener("load", createBackgroundEffects);
+  </script>
+</body>
+</html>

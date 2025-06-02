@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Bánh Sinh Nhật</title>
+  <style>
+    body {
+      margin: 0;
+      background: #ffd6ec;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-end; /* bánh nằm thấp xuống */
+      height: 100vh;
+      overflow: hidden;
+      font-family: Arial, sans-serif;
+      position: relative;
+    }
+
+    h2#title {
+      color: #ff3c6f;
+      font-size: 2.5rem;
+      margin: 30px 0 10px;
+      opacity: 0;
+      transition: opacity 1s ease;
+      z-index: 10;
+      position: relative;
+    }
+    h2#title.show {
+      opacity: 1;
+    }
+
+    h2#finalMessage {
+      color: #ff3c6f;
+      font-size: 2.5rem;
+      margin: 20px 0 40px;
+      opacity: 0;
+      transition: opacity 1.5s ease;
+      z-index: 10;
+      position: relative;
+        font-family: 'Dancing Script', cursive;
+      line-height: 1.5;
+    }
+    h2#finalMessage.show {
+      opacity: 1;
+    }
+
+    .cake {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0;
+      opacity: 0;
+      transition: opacity 1s ease;
+      justify-content: center;
+      margin-bottom: 30px;
+      height: 70vh; /* to hơn */
+      z-index: 5;
+    }
+
+    .cake.show {
+      opacity: 1;
+    }
+
+    .tier {
+      position: relative;
+      height: 120px; /* cao hơn bánh to */
+      display: flex;
+    }
+
+    .tier1 {
+      width: 150px; /* to hơn */
+      position: relative;
+      z-index: 3;
+    }
+    .tier2 {
+      width: 300px;
+    }
+    .tier3 {
+      width: 450px;
+    }
+
+    .half {
+      width: 50%;
+      height: 100%;
+      transition: transform 2s ease;
+      position: relative;
+      z-index: 1;
+    }
+
+    .left-half {
+      background: linear-gradient(to right, #ff6b81, #ffa07a);
+      border-top-left-radius: 30px;
+      border-bottom-left-radius: 30px;
+      border: 3px solid white;
+      border-right: none;
+    }
+
+    .right-half {
+      background: linear-gradient(to left, #ff6b81, #ffa07a);
+      border-top-right-radius: 30px;
+      border-bottom-right-radius: 30px;
+      border: 3px solid white;
+      border-left: none;
+    }
+
+    .half::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      left: 0;
+      width: 100%;
+      height: 30px;
+      background-image: repeating-linear-gradient(
+        90deg,
+        transparent,
+        transparent 10px,
+        white 10px,
+        white 20px
+      );
+      clip-path: polygon(
+        0% 100%, 5% 0%, 10% 100%,
+        15% 0%, 20% 100%,
+        25% 0%, 30% 100%,
+        35% 0%, 40% 100%,
+        45% 0%, 50% 100%,
+        55% 0%, 60% 100%,
+        65% 0%, 70% 100%,
+        75% 0%, 80% 100%,
+        85% 0%, 90% 100%,
+        95% 0%, 100% 100%
+      );
+      z-index: 2;
+    }
+
+    .tier1.opened .candle {
+      display: none;
+    }
+
+    .tier1.opened .left-half {
+      transform: translateX(-70px);
+    }
+    .tier1.opened .right-half {
+      transform: translateX(140px);
+    }
+
+    .tier2.opened .left-half {
+      transform: translateX(-70px);
+    }
+    .tier2.opened .right-half {
+      transform: translateX(140px);
+    }
+
+    .tier3.opened .left-half {
+      transform: translateX(-70px);
+    }
+    .tier3.opened .right-half {
+      transform: translateX(140px);
+    }
+
+    .knife {
+      position: absolute;
+      top: 120px;
+      right: -80px;
+      width: 140px;
+      height: 14px;
+      background: linear-gradient(to bottom, silver, gray);
+      border-radius: 5px;
+      z-index: 4;
+      animation: knifeSlide 2s ease forwards;
+      animation-delay: 2.5s;
+      opacity: 0;
+    }
+
+    .knife.active {
+      opacity: 1;
+    }
+@keyframes knifeSlide {
+  from {
+    transform: translateX(200%); /* bắt đầu ngoài màn hình bên phải */
+    opacity: 0;
+  }
+  to {
+    transform: translateX(-100%);
+    opacity: 1;
+  }
+}
+
+
+    .fireworks-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: -1;
+      background: transparent;
+    }
+
+    canvas#fireworkCanvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .candle {
+      position: absolute;
+      width: 9px;
+      height: 30px;
+      background: white;
+      top: -30px;
+      left: 50%;
+      transform: translateX(-50%);
+      border-radius: 3px;
+      z-index: 3;
+    }
+
+    .flame {
+      position: absolute;
+      top: -12px;
+      left: 50%;
+      width: 12px;
+      height: 18px;
+      background: orange;
+      border-radius: 50%;
+      transform: translateX(-50%);
+      animation: flicker 0.3s infinite alternate;
+      opacity: 0.9;
+    }
+
+    @keyframes flicker {
+      from {
+        transform: translateX(-50%) scale(1);
+        opacity: 0.8;
+      }
+      to {
+        transform: translateX(-50%) scale(1.3);
+        opacity: 1;
+      }
+    }
+
+    .film-stack {
+      position: absolute;
+      top: 70px;
+      left: 70%;
+      transform: translateX(-50%);
+      width: 220px;
+      height: 220px;
+      z-index: 6;
+      pointer-events: none;
+    }
+
+    .film-stack .photo {
+      width: 220px;
+      height: 220px;
+      border-radius: 12px;
+      border: 3px solid white;
+      object-fit: cover;
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.25);
+      opacity: 0;
+      position: absolute;
+      top: 0;
+      left: 0;
+      transition: transform 0.6s ease, opacity 0.6s ease;
+    }
+
+    .film-stack .photo.active {
+      opacity: 1;
+      z-index: 1;
+      transform: scale(1);
+    }
+
+    .film-stack .photo.hide {
+      opacity: 0;
+      z-index: 0;
+      transform: translateY(-30px) rotate(-7deg);
+    }
+    /*bóng bay mới */
+  .balloon-cluster {
+  position: absolute;
+  bottom: -150px;
+  left: 50%;
+  transform: translateX(-50%);
+  animation: floatUp 12s linear infinite;
+  width: 120px;
+  height: 120px;
+}
+
+/* Bóng bay */
+.balloon {
+  width: 40px;
+  height: 55px;
+  border-radius: 50% 50% 45% 45%;
+  background: radial-gradient(circle at 30% 30%, white, transparent 60%), var(--color);
+  position: absolute;
+  box-shadow: inset -4px -8px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Sợi dây chung */
+.string {
+  position: absolute;
+  bottom: -60px;
+  left: 50%;
+  width: 2px;
+  height: 60px;
+  background: #c44;
+  transform: translateX(-50%);
+  z-index: -1;
+}
+
+@keyframes floatUp {
+  0% {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(-50%) translateY(-120vh);
+    opacity: 0;
+  }
+}
+
+
+  </style>
+</head>
+<body>
+  <audio id="bgMusic" src="assets/music/happy-birthday.mp3" autoplay loop></audio>
+  <h2 id="finalMessage">Chúc Em Yêu Sinh Nhật Vui Vẻ</h2>
+
+  <div class="cake" id="cake">
+    <div class="knife" id="knife"></div>
+
+    <div class="tier tier1">
+      <div class="candle"><div class="flame"></div></div>
+      <div class="half left-half"></div>
+      <div class="half right-half"></div>
+
+      <!-- Ảnh xếp chồng bên trong khe bánh tầng 1 -->
+      <div class="film-stack" id="filmStack">
+        <img src="assets/images/bbi1.jpg" class="photo" alt="Ảnh 1" />
+        <img src="assets/images/bb2.jpg" class="photo" alt="Ảnh 2" />
+        <img src="assets/images/bb3.jpg" class="photo" alt="Ảnh 3" />
+        <img src="assets/images/bb4.jpg" class="photo" alt="Ảnh 3" />
+        <img src="assets/images/bb5.jpg" class="photo" alt="Ảnh 3" />
+        <img src="assets/images/bb6.jpg" class="photo" alt="Ảnh 3" />
+        <img src="assets/images/bb7.jpg" class="photo" alt="Ảnh 3" />
+        <img src="assets/images/bb8.jpg" class="photo" alt="Ảnh 3" />
+        <img src="assets/images/bb9.jpg" class="photo" alt="Ảnh 3" />
+        <img src="assets/images/bb10.jpg" class="photo" alt="Ảnh 3" />
+        <img src="assets/images/bb11.jpg" class="photo" alt="Ảnh 3" />
+        <img src="assets/images/bb12.jpg" class="photo" alt="Ảnh 3" />
+        <img src="assets/images/bb13.jpg" class="photo" alt="Ảnh 3" />
+        <img src="assets/images/bb14.jpg" class="photo" alt="Ảnh 3" />
+        <img src="assets/images/bb15.jpg" class="photo" alt="Ảnh 3" />
+        <img src="assets/images/bb16.jpg" class="photo" alt="Ảnh 3" />
+        <img src="assets/images/bb17.jpg" class="photo" alt="Ảnh 3" />
+        <img src="assets/images/bb18.jpg" class="photo" alt="Ảnh 3" />
+        <img src="assets/images/bb19.jpg" class="photo" alt="Ảnh 3" />
+        <img src="assets/images/bb20.jpg" class="photo" alt="Ảnh 3" />
+        <img src="assets/images/bb21.jpg" class="photo" alt="Ảnh 3" />
+                  
+      </div>
+    </div>
+
+    <div class="tier tier2">
+      <div class="half left-half"></div>
+      <div class="half right-half"></div>
+    </div>
+    <div class="tier tier3">
+      <div class="half left-half"></div>
+      <div class="half right-half"></div>
+    </div>
+  </div>
+  <div class="balloon-cluster"></div>
+
+
+  <div class="fireworks-container">
+    <canvas id="fireworkCanvas"></canvas>
+  </div>
+
+  <script>
+  // 1. Bánh kem hiện sau 0.5s
+  setTimeout(() => {
+    document.getElementById("cake").classList.add("show");
+  }, 500);
+
+  // 2. Pháo hoa bắt đầu sau bánh 1.5s
+  setTimeout(() => {
+    startFireworks();
+  }, 1000); // 0.5s + 1.5s
+
+ 
+function showFinalMessageAndBalloons() {
+  document.getElementById("finalMessage").classList.add("show");
+
+  // Tạo 10 cụm bóng bay cùng lúc, mỗi cụm bay lên khác vị trí
+  for (let i = 0; i < 10; i++) {
+    setTimeout(() => createBalloonCluster(), i * 90); // lệch nhẹ thời gian
+  }
+}
+
+
+
+  // 4. Ẩn chữ sau vài giây và chuẩn bị cắt bánh (ẩn sau 4s)
+  setTimeout(() => {
+    document.getElementById("finalMessage").classList.remove("show");
+  }, 1000);
+
+  // 5. Cắt bánh (hiện dao và mở bánh) sau chữ biến mất
+  setTimeout(() => {
+    document.getElementById("knife").classList.add("active");
+  }, 14300); // sau 14.5s
+
+  setTimeout(() => {
+    document.querySelectorAll(".tier").forEach((tier) =>
+      tier.classList.add("opened")
+    );
+  }, 4500); // sau 16s
+
+  setTimeout(() => {
+    document.getElementById("knife").style.display = "none";
+  }, 4500); // dao biến mất
+
+  // 6. Chạy ảnh sau khi bánh mở xong
+  const photos = document.querySelectorAll(".film-stack .photo");
+  let currentIndex = 0;
+  setTimeout(() => {
+    if (photos.length > 0) {
+      photos[currentIndex].classList.add("active");
+
+      const flipNext = () => {
+        if (currentIndex < photos.length - 1) {
+          photos[currentIndex].classList.remove("active");
+          photos[currentIndex].classList.add("hide");
+          currentIndex++;
+          photos[currentIndex].classList.add("active");
+          setTimeout(flipNext, 900);
+        }
+      };
+
+      setTimeout(flipNext, 900);
+    }
+  }, 5000); // sau 19s
+
+
+    // --------- PHÁO HOA DẠNG HẠT DÀI ---------
+    const canvas = document.getElementById("fireworkCanvas");
+    const ctx = canvas.getContext("2d");
+    let W, H;
+    function resize() {
+      W = window.innerWidth;
+      H = window.innerHeight;
+      canvas.width = W * devicePixelRatio;
+      canvas.height = H * devicePixelRatio;
+      canvas.style.width = W + "px";
+      canvas.style.height = H + "px";
+      ctx.setTransform(1,0,0,1,0,0);
+      ctx.scale(devicePixelRatio, devicePixelRatio);
+    }
+    resize();
+    window.addEventListener("resize", resize);
+
+    class FireworkParticle {
+      constructor(x, y, speed, angle, length, color) {
+        this.x = x;
+        this.y = y;
+        this.speed = speed;
+        this.angle = angle;
+        this.length = length;
+        this.color = color;
+        this.opacity = 1;
+        this.decay = 0.015 + Math.random() * 0.01;
+      }
+      update() {
+        this.x += this.speed * Math.cos(this.angle);
+        this.y += this.speed * Math.sin(this.angle);
+        this.opacity -= this.decay;
+        if(this.opacity < 0) this.opacity = 0;
+      }
+      draw(ctx) {
+        ctx.save();
+        ctx.strokeStyle = `rgba(${this.color.r},${this.color.g},${this.color.b},${this.opacity})`;
+        ctx.lineWidth = 3;
+        ctx.lineCap = "round";
+        ctx.beginPath();
+        ctx.moveTo(this.x, this.y);
+        ctx.lineTo(this.x - this.length * Math.cos(this.angle), this.y - this.length * Math.sin(this.angle));
+        ctx.stroke();
+        ctx.restore();
+      }
+      isDead() {
+        return this.opacity <= 0;
+      }
+    }
+
+    class Firework {
+      constructor() {
+        this.x = Math.random() * W * 0.8 + W * 0.1;
+        this.y = H + 10;
+        this.speed = 5 + Math.random() * 3;
+        this.angle = -Math.PI / 2 + (Math.random() - 0.5) * 0.2;
+        this.color = {
+          r: Math.floor(150 + Math.random() * 100),
+          g: Math.floor(50 + Math.random() * 100),
+          b: Math.floor(100 + Math.random() * 155)
+        };
+        this.particles = [];
+        this.exploded = false;
+        this.heightLimit = H * (0.2 + Math.random() * 0.4);
+      }
+      update() {
+        if (!this.exploded) {
+          this.x += this.speed * Math.cos(this.angle);
+          this.y += this.speed * Math.sin(this.angle);
+          if(this.y <= this.heightLimit) {
+            this.exploded = true;
+            this.explode();
+          }
+        }
+        this.particles.forEach(p => p.update());
+        this.particles = this.particles.filter(p => !p.isDead());
+      }
+      explode() {
+        let count = 20 + Math.floor(Math.random() * 20);
+        for(let i=0; i<count; i++) {
+          let angle = Math.random() * 2 * Math.PI;
+          let speed = 2 + Math.random() * 4;
+          let length = 15 + Math.random() * 20;
+          this.particles.push(new FireworkParticle(this.x, this.y, speed, angle, length, this.color));
+        }
+      }
+      draw(ctx) {
+        if(!this.exploded) {
+          // vẽ đường phóng
+          ctx.save();
+          ctx.fillStyle = `rgba(${this.color.r},${this.color.g},${this.color.b},1)`;
+          ctx.beginPath();
+          ctx.arc(this.x, this.y, 4, 0, Math.PI*2);
+          ctx.fill();
+          ctx.restore();
+        }
+        this.particles.forEach(p => p.draw(ctx));
+      }
+      isDone() {
+        return this.exploded && this.particles.length === 0;
+      }
+    }
+
+    const fireworks = [];
+    let fireworkInterval;
+    let fireworkDuration = 8000; // 8 giây pháo hoa
+
+    function launchFirework() {
+      if(fireworks.length < 5) {
+        fireworks.push(new Firework());
+      }
+    }
+
+    function animateFireworks(timestamp) {
+      ctx.clearRect(0, 0, W, H);
+      fireworks.forEach(fw => {
+        fw.update();
+        fw.draw(ctx);
+      });
+      // Loại bỏ pháo hoa đã xong
+      for(let i=fireworks.length-1; i>=0; i--) {
+        if(fireworks[i].isDone()) fireworks.splice(i,1);
+      }
+
+      if(fireworks.length === 0 && Date.now() - startTime > fireworkDuration) {
+        // Kết thúc pháo hoa
+        cancelAnimationFrame(animationId);
+        showFinalMessageAndBalloons();
+        return;
+      }
+      animationId = requestAnimationFrame(animateFireworks);
+    }
+
+    let animationId;
+    let startTime = Date.now();
+
+    function startFireworks() {
+      startTime = Date.now();
+      fireworkInterval = setInterval(launchFirework, 1000);
+      animationId = requestAnimationFrame(animateFireworks);
+
+      // Dừng tạo pháo hoa sau 8s
+      setTimeout(() => {
+        clearInterval(fireworkInterval);
+      }, fireworkDuration);
+    }
+
+    /* Bóng bay bay lên
+    function createBalloon() {
+      const balloon = document.createElement("div");
+      balloon.classList.add("balloon");
+
+      // random màu bóng
+      const colors = [
+        "radial-gradient(circle at 50% 40%, #ff5c8d, #c70039)",
+        "radial-gradient(circle at 50% 40%, #ff9f5c, #c76300)",
+        "radial-gradient(circle at 50% 40%, #5c9fff, #0045c7)",
+        "radial-gradient(circle at 50% 40%, #9fff5c, #5bc700)",
+        "radial-gradient(circle at 50% 40%, #ff5cb6, #c7005c)"
+      ];
+      balloon.style.background = colors[Math.floor(Math.random() * colors.length)];
+
+      balloon.style.left = Math.random() * 100 + "vw";
+      balloon.style.bottom = "-100px";
+
+      const duration = 8000 + Math.random() * 4000;
+      balloon.style.animation = `floatUp ${duration}ms linear forwards`;
+
+      // Tạo animation keyframe động
+      const style = document.createElement("style");
+      const animName = `floatUp${Date.now()}`;
+      style.textContent = `
+        @keyframes ${animName} {
+          0% { bottom: -100px; transform: translateX(0) rotate(0deg);}
+          100% { bottom: 110vh; transform: translateX(${(Math.random() - 0.5) * 100}px) rotate(360deg);}
+        }
+      `;
+      document.head.appendChild(style);
+      balloon.style.animationName = animName;
+
+      document.body.appendChild(balloon);
+
+      setTimeout(() => {
+        balloon.remove();
+        style.remove();
+      }, duration + 100);
+    }
+
+    // Hiện message cuối và bóng bay
+    function showFinalMessageAndBalloons() {
+      document.getElementById("finalMessage").classList.add("show");
+
+      // Tạo bóng bay liên tục trong 10s
+      let balloonTimer = setInterval(createBalloon, 300);
+      setTimeout(() => {
+        clearInterval(balloonTimer);
+      }, 10000);
+    }
+
+    // Khởi chạy hiệu ứng pháo hoa sau bánh mở ra
+    setTimeout(() => {
+      startFireworks();
+    }, 8000);
+    */
+  const colors = ['#ff4d4d', '#4dff4d', '#4d4dff', '#ffff4d', '#ff4df2', '#4dffff'];
+
+function createBalloonCluster() {
+  const cluster = document.createElement('div');
+  cluster.className = 'balloon-cluster';
+
+  const centerX = 60; // bán kính khối
+  const centerY = 60;
+  const radius = 40;
+  const count = 8;
+
+  for (let i = 0; i < count; i++) {
+    const angle = (2 * Math.PI * i) / count;
+    const x = centerX + radius * Math.cos(angle) - 20; // trừ nửa width
+    const y = centerY + radius * Math.sin(angle) - 25; // trừ nửa height
+
+    const balloon = document.createElement('div');
+    balloon.className = 'balloon';
+    balloon.style.setProperty('--color', colors[Math.floor(Math.random() * colors.length)]);
+    balloon.style.left = `${x}px`;
+    balloon.style.top = `${y}px`;
+    cluster.appendChild(balloon);
+  }
+
+  const string = document.createElement('div');
+  string.className = 'string';
+  cluster.appendChild(string);
+
+  cluster.style.left = Math.random() * (window.innerWidth - 100) + 'px';
+  document.body.appendChild(cluster);
+
+  // Xoá sau 12s
+  setTimeout(() => cluster.remove(), 13000);
+}
+
+// Gọi cụm bóng mỗi 4 giây
+setInterval(createBalloonCluster, 4000);
+
+
+  </script>
+</body>
+</html>
